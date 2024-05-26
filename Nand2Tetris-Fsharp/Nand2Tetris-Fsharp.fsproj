@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="VMTranslator\CommandType.fs" />
+    <Compile Include="VMTranslator\CodeWritere.fs" />
+    <Compile Include="VMTranslator\Parser.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
