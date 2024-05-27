@@ -1,10 +1,13 @@
-﻿namespace VMTranslator
+﻿// Exercise 1 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+
+namespace VMTranslator
 
 open System.IO
 open VMTranslator.CommandType
 
 module CodeWriter =
 
+    // The CodeWriter module writes different vm commands into an output file in Hack language
     type CodeWriter(outputFile: string) =
         let fileStream = new StreamWriter(outputFile)
         let mutable arthJumpCounter = 0
@@ -49,6 +52,8 @@ module CodeWriter =
                 sprintf "(CONTINUE%d)" flag
             ]
 
+        // Template of instructuins in Hack to push a value found in a specific variable to the stack.
+        // To use, calculate address of the variable in A.
         let memoryPushInstructions = 
             [
                 "D=M"
@@ -68,7 +73,8 @@ module CodeWriter =
                 "A=D+A"
             ] @ memoryPushInstructions
 
-        // To use, calculate address of variable an save in in D
+        // Template of instructuins in Hack to pop a value to a specific variable location in the memory.
+        // To use, calculate address of variable and save it in D.
         let memoryPopInstructions = 
             [
                 "@R13" // save address in general register

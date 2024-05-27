@@ -1,9 +1,12 @@
-﻿open System
+﻿// Exercise 1 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+
+open System
 open System.IO
 open VMTranslator.Parser
 open VMTranslator.CodeWriter
 open VMTranslator.CommandType
 
+// The main function gets a path to a directory and translates all of the vm files in it using the Parser and CodeWriter modules
 [<EntryPoint>]
 let main argv =
     if argv.Length <> 1 then
