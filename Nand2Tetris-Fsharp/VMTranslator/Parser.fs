@@ -59,7 +59,7 @@ module Parser =
 
         // Get the second argument of the current command
         member this.arg2() : int =
-            if List.contains (this.commandType()) [Some C_PUSH; Some C_POP; Some C_FUNCTION; Some C_CALL] then
+            if not(List.contains (this.commandType()) [Some C_PUSH; Some C_POP; Some C_FUNCTION; Some C_CALL]) then
                 failwith "arg2() can only be called for command types: PUSH, POP, FUNCTION and CALL"
             else
                 let tokens = Regex.Split(currentCommand, @"\s+")

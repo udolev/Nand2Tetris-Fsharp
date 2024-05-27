@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <Compile Include="VMTranslator\CommandType.fs" />
-    <Compile Include="VMTranslator\CodeWritere.fs" />
+    <Compile Include="VMTranslator\CodeWriter.fs" />
     <Compile Include="VMTranslator\Parser.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
 
 </Project>
