@@ -14,25 +14,19 @@ let main argv =
     let files = 
         if Directory.Exists(path) then
             Directory.GetFiles(path, "*.vm")
-        else if File.Exists(path) && path.EndsWith(".vm") then
-            [| path |]
         else
-            printfn "Invalid file or directory"
+            printfn "Invalid directory"
             Environment.Exit 1
             [||]
 
-    let outputFile =
-        if Directory.Exists(path) then
-            let directoryName = Path.GetFileName(path)
-            Path.Combine(path, directoryName + ".asm")
-        else
-            Path.ChangeExtension(path, ".asm")
+    let directoryName = Path.GetFileName(path)
+    let outputFile = Path.Combine(path, directoryName + ".asm")
 
     let codeWriter = new CodeWriter(outputFile)
         
     files |> Array.iter (fun file ->
         let parser = new Parser(file)
-
+        codeWriter.setFileName(Path.GetFileNameWithoutExtension(file))
         while parser.hasMoreLines() do
             parser.advance()
             match parser.commandType() with
