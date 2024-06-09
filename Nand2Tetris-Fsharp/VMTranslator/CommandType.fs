@@ -1,4 +1,4 @@
-﻿// Exercise 1 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+﻿// Exercise 2 - Uriel Dolev 215676560 and Shilo Sofir 328308002
 
 namespace VMTranslator
 

@@ -1,4 +1,4 @@
-﻿// Exercise 1 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+﻿// Exercise 2 - Uriel Dolev 215676560 and Shilo Sofir 328308002
 
 namespace VMTranslator
 
@@ -17,7 +17,7 @@ module Parser =
         // Check if there are more lines to read
         member this.hasMoreLines() : bool = 
             not fileStream.EndOfStream
-
+            
         // Advance to the next command
         member this.advance() = 
             if this.hasMoreLines() then
@@ -38,13 +38,15 @@ module Parser =
             match currentCommand with 
             | cmd when cmd.StartsWith("push") -> Some C_PUSH
             | cmd when cmd.StartsWith("pop") -> Some C_POP
-            | cmd when cmd = "add" || cmd = "sub" || cmd = "neg" || cmd = "eq" || cmd = "gt" || cmd = "lt" || cmd = "and" || cmd = "or" || cmd = "not" -> Some C_ARITHMETIC
+            | cmd when cmd.StartsWith("add") || cmd.StartsWith("sub") || cmd.StartsWith("neg") || 
+                       cmd.StartsWith("eq")  || cmd.StartsWith("gt")  || cmd.StartsWith("lt")  || 
+                       cmd.StartsWith("and") || cmd.StartsWith("or")  || cmd.StartsWith("not") -> Some C_ARITHMETIC
             | cmd when cmd.StartsWith("label") -> Some C_LABEL
             | cmd when cmd.StartsWith("goto") -> Some C_GOTO
             | cmd when cmd.StartsWith("if-goto") -> Some C_IF
             | cmd when cmd.StartsWith("function") -> Some C_FUNCTION
             | cmd when cmd.StartsWith("call") -> Some C_CALL
-            | cmd when cmd = "return" -> Some C_RETURN
+            | cmd when cmd.StartsWith("return") -> Some C_RETURN
             | _ -> None
 
         // Get the first argument of the current command

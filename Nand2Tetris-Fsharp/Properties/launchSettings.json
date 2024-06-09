@@ -2,7 +2,7 @@
   "profiles": {
     "Nand2Tetris-Fsharp": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\uriel\\Downloads\\nand2tetris\\nand2tetris\\projects\\07\\StackArithmetic\\SimpleAdd\""
+      "commandLineArgs": "\"C:\\Users\\uriel\\Downloads\\nand2tetris\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement\""
     }
   }
 }

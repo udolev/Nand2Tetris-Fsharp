@@ -1,4 +1,4 @@
-﻿// Exercise 1 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+﻿// Exercise 2 - Uriel Dolev 215676560 and Shilo Sofir 328308002
 
 namespace VMTranslator
 
@@ -10,8 +10,9 @@ module CodeWriter =
     // The CodeWriter module writes different vm commands into an output file in Hack language
     type CodeWriter(outputFile: string) =
         let fileStream = new StreamWriter(outputFile)
-        let mutable arthJumpCounter = 0
-        let mutable fileName = ""
+        let mutable arthJumpCounter:int = 0
+        let mutable retAddrCounter:int = 0
+        let mutable fileName:string = ""
 
         // Helper function to write a single line to the output file
         let writeLine (line: string) = 
@@ -187,7 +188,80 @@ module CodeWriter =
 
             writeLines (["// " + (if commandType = C_PUSH then "push" else "pop") + " " + segment + " " + index.ToString()] @ pushPopLines)
 
-        // Sets the current file name (used for static variables)
+        // Writes the assembly code of the bootstrap
+        member this.writeInit() = 
+            writeLines(["// SP=256"; "@256"; "D=A"; "@SP"; "M=D"])
+            // call Sys.init
+            this.writeCall("Sys.init", 0)
+
+        // Writes the assembly code of a given label
+        member this.writeLabel(label:string) = 
+            writeLine(sprintf "(%s.%s)" fileName label)
+
+        // Writes the assembly code of a given goto command
+        member this.writeGoto(label:string) = 
+            let label_file = sprintf "%s.%s" fileName label 
+            writeLines([
+                        sprintf "// goto %s" label_file
+                        sprintf "@%s" label_file
+                        "0;JMP"
+                        ])
+
+        // Writes the assembly code of a given if-goto command
+        member this.writeIf(label:string) = 
+            let label_file = sprintf "%s.%s" fileName label 
+            writeLines([
+                sprintf "// if-goto %s" label_file
+                "@SP"
+                "AM=M-1"
+                "D=M"
+                sprintf "@%s" label_file
+                "D;JNE"
+            ])
+        
+        // Writes the assmebly code of a vm call command  
+        member this.writeCall(functionName:string, numArgs:int) =
+            let newARG = numArgs + 5
+            let ra_label = sprintf "%s.RA%d" functionName retAddrCounter
+            writeLines(
+                ["// push return-address"; sprintf "@%s" ra_label; "D=A"] @ List.tail memoryPushInstructions @
+                ["// push LCL"; "@LCL"] @ memoryPushInstructions @
+                ["// push ARG"; "@ARG"] @ memoryPushInstructions @
+                ["// push THIS"; "@THIS"] @ memoryPushInstructions @
+                ["// push THAT"; "@THAT"] @ memoryPushInstructions @
+                ["// ARG = SP-n-5"; "@SP"; "D=M"; sprintf "@%d" newARG; "D=D-A"; "@ARG"; "M=D"] @
+                ["// LCL = SP"; "@SP"; "D=M"; "@LCL"; "M=D"] @
+                [sprintf "// goto %s" functionName; sprintf "@%s" functionName; "0;JMP"] @
+                ["// label return-address"; sprintf "(%s)" ra_label]
+            )
+            retAddrCounter <- retAddrCounter + 1
+
+        // Writes the assembly code of a vm return command
+        member this.writeReturn() =
+            writeLines([
+                "// return"
+                "// FRAME = LCL"; "@LCL"; "D=M";
+                "// RET = *(FRAME-5)"; "// RAM[13] = (LOCAL - 5)"; "@5"; "A=D-A"; "D=M"; "@13"; "M=D";
+                "// *ARG = pop()"; "@SP"; "M=M-1"; "A=M"; "D=M"; "@ARG"; "A=M"; "M=D";
+                "// SP = ARG+1"; "@ARG"; "D=M"; "@SP"; "M=D+1";
+                "// THAT = *(FRAM-1)"; "@LCL"; "AM=M-1"; "D=M"; "@THAT"; "M=D";
+                "// THIS = *(FRAM-2)"; "@LCL"; "AM=M-1"; "D=M"; "@THIS"; "M=D";
+                "// ARG = *(FRAM-3)"; "@LCL"; "AM=M-1"; "D=M"; "@ARG"; "M=D";
+                "// LCL = *(FRAM-4)"; "@LCL"; "AM=M-1"; "D=M"; "@LCL"; "M=D";
+                "// goto RET"; "@13"; "A=M"; "0;JMP"
+            ])
+
+        // Writes the assembly code of a vm function command
+        member this.writeFunction(functionName:string, numLocals:int) =
+            writeLine(sprintf "// function %s %d" functionName numLocals)
+            writeLine(sprintf "(%s)" functionName)
+            // initialize locals with zero
+            writeLines([sprintf "@%d" numLocals; "D=A"; sprintf "@%s.End" functionName; "D;JEQ"])
+            writeLine(sprintf "(%s.Loop)" functionName)
+            writeLines(["@SP"; "A=M"; "M=0"; "@SP"; "M=M+1"; sprintf "@%s.Loop" functionName; "D=D-1;JNE"])
+            writeLine(sprintf "(%s.End)" functionName)
+
+        // Sets the current file name (used for static variables and labels)
         member this.setFileName(name: string) =
             fileName <- name
 
