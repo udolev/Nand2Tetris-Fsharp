@@ -4,13 +4,25 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Nand2Tetris_Fsharp</RootNamespace>
-  </PropertyGroup>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+	<GenerateProgramFile>false</GenerateProgramFile>
+    </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="VMTranslator\CommandType.fs" />
-    <Compile Include="VMTranslator\CodeWriter.fs" />
-    <Compile Include="VMTranslator\Parser.fs" />
-    <Compile Include="Main.fs" />
+	<Compile Include="VMTranslator\CommandType.fs" />
+	<Compile Include="VMTranslator\CodeWriter.fs" />
+	<Compile Include="VMTranslator\Parser.fs" />
+	<!--<Compile Include="VMTranslator\VMTranslator.fs" />-->
+	<Compile Include="JackCompiler\SyntaxAnalayzer\CompilationEngine.fs" />
+	<Compile Include="JackCompiler\SyntaxAnalayzer\JackTokenizer.fs" />
+	<Compile Include="JackCompiler\SyntaxAnalayzer\JackAnalyzer.fs" />
   </ItemGroup>
+
+  <PropertyGroup>
+	<StartupObject>SyntaxAnalayzer.JackTokenizer</StartupObject>
+  </PropertyGroup>
 
 </Project>

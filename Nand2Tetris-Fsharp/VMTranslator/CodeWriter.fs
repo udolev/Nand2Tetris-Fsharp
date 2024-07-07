@@ -1,4 +1,5 @@
 ﻿// Exercise 2 - Uriel Dolev 215676560 and Shilo Sofir 328308002
+// Course Group ID: 150060.01.5784.46
 
 namespace VMTranslator
 
@@ -190,7 +191,7 @@ module CodeWriter =
 
         // Writes the assembly code of the bootstrap
         member this.writeInit() = 
-            writeLines(["// SP=256"; "@256"; "D=A"; "@SP"; "M=D"])
+            writeLines(["// bootstrap"; "@256"; "D=A"; "@SP"; "M=D"])
             // call Sys.init
             this.writeCall("Sys.init", 0)
 
