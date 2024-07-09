@@ -55,12 +55,8 @@ module JackTokenizer =
     type JackTokenizer(inputFilePath: string) =
         // Read the entire input file into a mutable string
         let mutable text = System.IO.File.ReadAllText(inputFilePath)
-        let mutable lastText = ""
-
         let mutable _tokenType = None
         let mutable currentToken = None
-        let mutable lastTokenType = None
-        let mutable lastToken = None
 
         // Remove all comments from the input text
         let clearAllComments() =
@@ -80,11 +76,8 @@ module JackTokenizer =
                 let matchToken pattern tokenType =
                     let m = Regex.Match(text, pattern)
                     if m.Success then
-                        lastText <- text
                         text <- Regex.Replace(text, pattern, "")
-                        lastTokenType <- _tokenType // save last token type
                         _tokenType <- Some tokenType
-                        lastToken <- currentToken // save last token value
                         currentToken <- Some m.Groups.[1].Value
                         true
                     else
@@ -132,10 +125,3 @@ module JackTokenizer =
             if _tokenType <> Some STRING_CONST then
                 failwith "stringVal() should only be called when tokenType is STRING_CONST"
             currentToken.Value
-
-        // Undo last advance()
-        member this.retreat() =
-            text <- lastText
-            currentToken <- lastToken
-            _tokenType <- lastTokenType
-            

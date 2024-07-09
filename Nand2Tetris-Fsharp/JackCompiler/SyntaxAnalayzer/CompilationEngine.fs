@@ -176,6 +176,7 @@ module CompilationEngine =
             indentation <- indentation + 1
 
             process_token TokenType.KEYWORD "do"
+            process_token TokenType.IDENTIFIER (tokenizer.identifier())
             this.CompileSubroutineCall()
             process_token TokenType.SYMBOL ";"
 
@@ -278,21 +279,14 @@ module CompilationEngine =
             | TokenType.STRING_CONST -> process_token TokenType.STRING_CONST (tokenizer.stringVal())
             | TokenType.KEYWORD -> process_token TokenType.KEYWORD (KeywordMap.getValue (tokenizer.keyword()))
             | TokenType.IDENTIFIER ->
-                let identifier = tokenizer.identifier()
-                tokenizer.advance() // for one lookahead
+                process_token TokenType.IDENTIFIER (tokenizer.identifier())
 
                 if tokenizer.tokenType() = TokenType.SYMBOL && tokenizer.symbol() = "[" then
-                    tokenizer.retreat()
-                    process_token TokenType.IDENTIFIER identifier
                     process_token TokenType.SYMBOL "["
                     this.CompileExpression()
                     process_token TokenType.SYMBOL "]"
                 elif tokenizer.tokenType() = TokenType.SYMBOL && (tokenizer.symbol() = "(" || tokenizer.symbol() = ".") then
-                    tokenizer.retreat()
-                    this.CompileSubroutineCall()
-                else
-                    tokenizer.retreat()
-                    process_token TokenType.IDENTIFIER identifier
+                    this.CompileSubroutineCall()                    
             | TokenType.SYMBOL ->
                 let symbol = tokenizer.symbol()
                 if symbol = "(" then
@@ -320,7 +314,7 @@ module CompilationEngine =
             engineWriteLine "</expressionList>"
 
         member this.CompileSubroutineCall() =
-            process_token TokenType.IDENTIFIER (tokenizer.identifier()) // subroutineName or (className | varName)
+            // process_token TokenType.IDENTIFIER (tokenizer.identifier()) // subroutineName or (className | varName), activated before calling the function
 
             if tokenizer.tokenType() = TokenType.SYMBOL && tokenizer.symbol() = "." then
                 process_token TokenType.SYMBOL "."
