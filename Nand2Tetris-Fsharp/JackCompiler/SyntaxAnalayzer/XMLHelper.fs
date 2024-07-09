@@ -1,4 +1,7 @@
-﻿namespace JackCompiler.SyntaxAnalyzer
+﻿// Uriel Dolev 215676560 and Shilo Sofir 328308002
+// Course Group ID: 150060.01.5784.46
+
+namespace JackCompiler.SyntaxAnalyzer
 
 open System.IO
 open JackTokenizer

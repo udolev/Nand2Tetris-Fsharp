@@ -1,4 +1,7 @@
-﻿namespace JackCompiler.SyntaxAnalyzer
+﻿// Uriel Dolev 215676560 and Shilo Sofir 328308002
+// Course Group ID: 150060.01.5784.46
+
+namespace JackCompiler.SyntaxAnalyzer
 
 open System.IO
 open JackTokenizer
@@ -11,9 +14,11 @@ module CompilationEngine =
         let tokenizer = JackTokenizer(inputFilePath)
         let output = new StreamWriter(outputPath)
 
+        // Writes a line to the xml considering the number of we're currently at
         let engineWriteLine (line: string) =
             writeLine output line indentation
 
+        // Makes sure the current toekn matches what it is supposed to be and writes it to the xml file
         let process_token (expectedType: TokenType) (expectedValue: string) =
             let currentType = tokenizer.tokenType()
             let currentValue = getTokenValue currentType tokenizer
@@ -25,6 +30,7 @@ module CompilationEngine =
                 printfn "Syntax error: Expected %s (%A) but got %s (%A)" expectedValue expectedType currentValue currentType
                 tokenizer.advance()
 
+        // Checks if the current keyword is one of the keywords in keywordsList
         let checkForSpecificKeywords(keywordsList) =
             List.contains (tokenizer.keyword()) keywordsList
 
@@ -67,7 +73,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</classVarDec>"
 
-        // Compiles the rule: type varName
+        // Helper compile function
+        // Compiles the rule: type varName (',' varName)* ';'
         member this.CompileTypeAndVarName() =
             match tokenizer.tokenType() with
             | TokenType.KEYWORD -> process_token TokenType.KEYWORD (KeywordMap.getValue (tokenizer.keyword()))
@@ -81,7 +88,8 @@ module CompilationEngine =
                 process_token TokenType.IDENTIFIER (tokenizer.identifier()) // varName
             process_token TokenType.SYMBOL ";" // ';'
         
-
+        // Compiles a subroutine body
+        // Deduction rule: '{' varDec* statements '}'
         member this.CompileSubroutineBody() = 
             engineWriteLine "<subroutineBody>"
             indentation <- indentation + 1
@@ -96,6 +104,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</subroutineBody>"
 
+        // Compiles a complete subroutine
+        // Deduction rule: ('constructor'|'function'|'method') ('void'|type) subroutineName '(' parameterList ')' subroutineBody
         member this.CompileSubroutine() =
             engineWriteLine "<subroutineDec>"
             indentation <- indentation + 1
@@ -119,6 +129,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</subroutineDec>"
 
+        // Compiles a parameter list
+        // Deduction rule: ((type varName) (',' type varName)*)?
         member this.CompileParameterList() =
             engineWriteLine "<parameterList>"
             indentation <- indentation + 1
@@ -143,34 +155,41 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</parameterList>"
 
+        // Compiles a variable declaration
+        // Deduction rule: 'var' type varName (',' varName)* ';'
         member this.CompileVarDec() =
             engineWriteLine "<varDec>"
             indentation <- indentation + 1
 
             process_token TokenType.KEYWORD "var"
 
-            this.CompileTypeAndVarName()
+            this.CompileTypeAndVarName() // type varName (',' varName)* ';'
 
             indentation <- indentation - 1
             engineWriteLine "</varDec>"
 
+        // Compiles a sequence of statements
+        // Deduction rule: statement*
         member this.CompileStatements() =
             engineWriteLine "<statements>"
             indentation <- indentation + 1
 
             while tokenizer.tokenType() = TokenType.KEYWORD && 
                   checkForSpecificKeywords([Keyword.LET;Keyword.IF;Keyword.WHILE;Keyword.DO;Keyword.RETURN]) do
-                // statement*
+                // statement: letStatement | ifStatement | whileStatement | doStatement | returnStatement
                 match tokenizer.keyword() with
                 | Keyword.LET -> this.CompileLet()
                 | Keyword.IF -> this.CompileIf()
                 | Keyword.WHILE -> this.CompileWhile()
                 | Keyword.DO -> this.CompileDo()
                 | Keyword.RETURN -> this.CompileReturn()
+                | _ -> ()
 
             indentation <- indentation - 1
             engineWriteLine "</statements>"
 
+        // Compiles a do statement
+        // Deduction rule: 'do' subroutineCall ';'
         member this.CompileDo() =
             engineWriteLine "<doStatement>"
             indentation <- indentation + 1
@@ -183,6 +202,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</doStatement>"
 
+        // Compiles a let statement
+        // Deduction rule: 'let' varName ('[' expression ']')? '=' expression ';'
         member this.CompileLet() =
             engineWriteLine "<letStatement>"
             indentation <- indentation + 1
@@ -202,6 +223,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</letStatement>"
 
+        // Compiles a while statement
+        // Deduction rule: 'while' '(' expression ')' '{' statements '}'
         member this.CompileWhile() =
             engineWriteLine "<whileStatement>"
             indentation <- indentation + 1
@@ -217,6 +240,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</whileStatement>"
 
+        // Compiles a return statement
+        // Deduction rule: 'return' expression? ';'
         member this.CompileReturn() =
             engineWriteLine "<returnStatement>"
             indentation <- indentation + 1
@@ -231,6 +256,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</returnStatement>"
 
+        // Compiles an if statement, possibly with a trailing else clause
+        // Deduction rule: 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
         member this.CompileIf() =
             engineWriteLine "<ifStatement>"
             indentation <- indentation + 1
@@ -252,6 +279,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</ifStatement>"
 
+        // Compiles an expression
+        // Deduction rule: term (op term)*
         member this.CompileExpression() =
             engineWriteLine "<expression>"
             indentation <- indentation + 1
@@ -270,6 +299,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</expression>"
 
+        // Compiles a term
+        // Deduction rule: integerConstant | stringConstant | keywordConstant | varName | varName '[' expression ']' | subroutineCall | '(' expression ')' | unaryOp term
         member this.CompileTerm() =
             engineWriteLine "<term>"
             indentation <- indentation + 1
@@ -300,6 +331,8 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</term>"
 
+        // Compiles a (possibly empty) comma-separated list of expressions
+        // Deduction rule: (expression (',' expression)* )?
         member this.CompileExpressionList() =
             engineWriteLine "<expressionList>"
             indentation <- indentation + 1
@@ -313,9 +346,10 @@ module CompilationEngine =
             indentation <- indentation - 1
             engineWriteLine "</expressionList>"
 
+        // Compiles a subroutine call
+        // Deduction rule: subroutineName '(' expressionList ')' | (className | varName) '.' subroutineName '(' expressionList ')'
         member this.CompileSubroutineCall() =
             // process_token TokenType.IDENTIFIER (tokenizer.identifier()) // subroutineName or (className | varName), activated before calling the function
-
             if tokenizer.tokenType() = TokenType.SYMBOL && tokenizer.symbol() = "." then
                 process_token TokenType.SYMBOL "."
                 process_token TokenType.IDENTIFIER (tokenizer.identifier()) // subroutineName
