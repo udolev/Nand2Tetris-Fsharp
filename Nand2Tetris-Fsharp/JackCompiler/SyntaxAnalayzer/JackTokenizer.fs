@@ -1,6 +1,5 @@
 ﻿namespace JackCompiler.SyntaxAnalyzer
 
-open System
 open System.Text.RegularExpressions
 
 module JackTokenizer =
@@ -29,12 +28,39 @@ module JackTokenizer =
         | DO | IF | ELSE | WHILE | RETURN | TRUE | FALSE
         | NULL | THIS
 
+    // This data type enables enumeration of Keyword type to string and vise versa
+    type KeywordMap =
+        // Map from string representation to Keyword value
+        static member private fromString =
+            [
+                "class", CLASS; "method", METHOD; "function", FUNCTION; "constructor", CONSTRUCTOR;
+                "int", INT; "boolean", BOOLEAN; "char", CHAR; "void", VOID; "var", VAR;
+                "static", STATIC; "field", FIELD; "let", LET; "do", DO; "if", IF; "else", ELSE;
+                "while", WHILE; "return", RETURN; "true", TRUE; "false", FALSE; "null", NULL; "this", THIS
+            ] |> Map.ofList
+
+        static member private toString =
+            KeywordMap.fromString
+            |> Map.toList
+            |> List.map (fun (k, v) -> (v, k))
+            |> Map.ofList
+
+        static member getValue (key: string) : Keyword =
+            KeywordMap.fromString.[key]
+
+        static member getValue (key: Keyword) : string =
+            KeywordMap.toString.[key]
+
     // JackTokenizer class
     type JackTokenizer(inputFilePath: string) =
         // Read the entire input file into a mutable string
         let mutable text = System.IO.File.ReadAllText(inputFilePath)
+        let mutable lastText = ""
+
         let mutable _tokenType = None
         let mutable currentToken = None
+        let mutable lastTokenType = None
+        let mutable lastToken = None
 
         // Remove all comments from the input text
         let clearAllComments() =
@@ -54,8 +80,11 @@ module JackTokenizer =
                 let matchToken pattern tokenType =
                     let m = Regex.Match(text, pattern)
                     if m.Success then
+                        lastText <- text
                         text <- Regex.Replace(text, pattern, "")
+                        lastTokenType <- _tokenType // save last token type
                         _tokenType <- Some tokenType
+                        lastToken <- currentToken // save last token value
                         currentToken <- Some m.Groups.[1].Value
                         true
                     else
@@ -75,45 +104,38 @@ module JackTokenizer =
 
         // Return the keyword which is the current token
         member this.keyword() =
-            match currentToken with
-            | Some token -> 
-                match token.ToUpper() with
-                | "CLASS" -> CLASS
-                | "METHOD" -> METHOD
-                | "FUNCTION" -> FUNCTION
-                | "CONSTRUCTOR" -> CONSTRUCTOR
-                | "INT" -> INT
-                | "BOOLEAN" -> BOOLEAN
-                | "CHAR" -> CHAR
-                | "VOID" -> VOID
-                | "VAR" -> VAR
-                | "STATIC" -> STATIC
-                | "FIELD" -> FIELD
-                | "LET" -> LET
-                | "DO" -> DO
-                | "IF" -> IF
-                | "ELSE" -> ELSE
-                | "WHILE" -> WHILE
-                | "RETURN" -> RETURN
-                | "TRUE" -> TRUE
-                | "FALSE" -> FALSE
-                | "NULL" -> NULL
-                | "THIS" -> THIS
-                | _ -> failwith "Invalid keyword"
-            | None -> failwith "No current token"
+            if _tokenType <> Some KEYWORD then
+                failwith "keyword() should only be called when tokenType is KEYWORD"
+            KeywordMap.getValue(currentToken.Value)
+            
 
         // Return the symbol which is the current token
         member this.symbol() =
+            if _tokenType <> Some SYMBOL then
+                failwith "symbol() should only be called when tokenType is SYMBOL"
             currentToken.Value
 
         // Return the identifier which is the current token
         member this.identifier() =
+            if _tokenType <> Some IDENTIFIER then
+                failwith "identifier() should only be called when tokenType is IDENTIFIER"
             currentToken.Value
 
         // Return the integer value of the current token
         member this.intVal() =
+            if _tokenType <> Some INT_CONST then
+                failwith "intVal() should only be called when tokenType is INT_CONST"
             int currentToken.Value
 
         // Return the string value of the current token
         member this.stringVal() =
+            if _tokenType <> Some STRING_CONST then
+                failwith "stringVal() should only be called when tokenType is STRING_CONST"
             currentToken.Value
+
+        // Undo last advance()
+        member this.retreat() =
+            text <- lastText
+            currentToken <- lastToken
+            _tokenType <- lastTokenType
+            

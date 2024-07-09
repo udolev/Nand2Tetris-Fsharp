@@ -16,8 +16,9 @@
 	<Compile Include="VMTranslator\CodeWriter.fs" />
 	<Compile Include="VMTranslator\Parser.fs" />
 	<!--<Compile Include="VMTranslator\VMTranslator.fs" />-->
-	<Compile Include="JackCompiler\SyntaxAnalayzer\CompilationEngine.fs" />
 	<Compile Include="JackCompiler\SyntaxAnalayzer\JackTokenizer.fs" />
+	<Compile Include="JackCompiler\SyntaxAnalayzer\XMLHelper.fs" />
+	<Compile Include="JackCompiler\SyntaxAnalayzer\CompilationEngine.fs" />
 	<Compile Include="JackCompiler\SyntaxAnalayzer\JackAnalyzer.fs" />
   </ItemGroup>
 

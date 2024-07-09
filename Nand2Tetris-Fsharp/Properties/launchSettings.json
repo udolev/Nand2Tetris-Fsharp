@@ -2,7 +2,7 @@
   "profiles": {
     "Nand2Tetris-Fsharp": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\uriel\\Downloads\\nand2tetris\\nand2tetris\\projects\\10\\ArrayTest\""
+      "commandLineArgs": "C:\\Users\\uriel\\Downloads\\nand2tetris\\nand2tetris\\projects\\10\\Square"
     }
   }
 }
