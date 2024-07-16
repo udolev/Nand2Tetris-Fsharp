@@ -1,7 +1,7 @@
 ﻿// Uriel Dolev 215676560 and Shilo Sofir 328308002
 // Course Group ID: 150060.01.5784.46
 
-namespace JackCompiler.SyntaxAnalyzer
+namespace JackCompiler
 
 open System.IO
 open JackTokenizer
@@ -18,7 +18,7 @@ module JackAnalyzer =
         writer.WriteLine("<tokens>")
         while tokenizer.hasMoreTokens() do
             tokenizer.advance()
-            writeTokenToXml writer tokenizer (Some 0)
+            writeTokenToXml writer tokenizer
         writer.WriteLine("</tokens>")
         printfn "Tokenization complete: %s" outputFilePath
 

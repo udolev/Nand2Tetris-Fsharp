@@ -1,22 +1,25 @@
 ﻿// Uriel Dolev 215676560 and Shilo Sofir 328308002
 // Course Group ID: 150060.01.5784.46
 
-namespace JackCompiler.SyntaxAnalyzer
+namespace JackCompiler
 
 open System.IO
 open JackTokenizer
 open XMLHelper
+open VMWriter
 
 module CompilationEngine =
 
-    type CompilationEngine(inputFilePath: string, outputPath: string) =
+    type CompilationEngine(inputFilePath: string, xmlOutputPath: string, vmOutputPath: string) =
         let mutable indentation:int = 0
         let tokenizer = JackTokenizer(inputFilePath)
-        let output = new StreamWriter(outputPath)
+        let xmlWriter = new StreamWriter(xmlOutputPath)
+        let vmOutputStream = new StreamWriter(vmOutputPath)
+        let vmWriter = VMWriter(vmOutputStream)
 
         // Writes a line to the xml considering the number of we're currently at
         let engineWriteLine (line: string) =
-            writeLine output line indentation
+            writeLine xmlWriter line indentation
 
         // Makes sure the current toekn matches what it is supposed to be and writes it to the xml file
         let process_token (expectedType: TokenType) (expectedValue: string) =
@@ -24,7 +27,7 @@ module CompilationEngine =
             let currentValue = getTokenValue currentType tokenizer
                 
             if currentType = expectedType && currentValue = expectedValue then
-                writeTokenToXml output tokenizer (Some indentation)
+                writeTokenToXml xmlWriter tokenizer (Some indentation)
                 tokenizer.advance()
             else
                 printfn "Syntax error: Expected %s (%A) but got %s (%A)" expectedValue expectedType currentValue currentType
@@ -58,7 +61,7 @@ module CompilationEngine =
 
                 indentation <- indentation - 1
                 engineWriteLine "</class>"
-                output.Close()
+                xmlWriter.Close()
 
         // Compiles a static variable declaration, or a field declaration
         // Deduction rule: ('static'|'field') type varName (',' varName)* ';'

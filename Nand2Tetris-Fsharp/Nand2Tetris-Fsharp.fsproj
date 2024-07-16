@@ -15,15 +15,15 @@
 	<Compile Include="VMTranslator\CommandType.fs" />
 	<Compile Include="VMTranslator\CodeWriter.fs" />
 	<Compile Include="VMTranslator\Parser.fs" />
-	<Content Include="JackCompiler\SyntaxAnalayzer\JackGrammar.txt" />
+	<Compile Include="JackCompiler\VMWriter.fs" />
+	<Compile Include="JackCompiler\SymbolTable.fs" />
+	<Content Include="JackCompiler\JackGrammar.txt" />
 	<!--<Compile Include="VMTranslator\VMTranslator.fs" />-->
-	<Compile Include="JackCompiler\SyntaxAnalayzer\JackTokenizer.fs" />
-	<Compile Include="JackCompiler\SyntaxAnalayzer\XMLHelper.fs" />
-	<Compile Include="JackCompiler\SyntaxAnalayzer\CompilationEngine.fs" />
-	<Compile Include="JackCompiler\SyntaxAnalayzer\JackAnalyzer.fs" />
+	<Compile Include="JackCompiler\JackTokenizer.fs" />
+	<Compile Include="JackCompiler\XMLHelper.fs" />
+	<Compile Include="JackCompiler\CompilationEngine.fs" />
+	<Compile Include="JackCompiler\JackAnalyzer.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <PropertyGroup>
 	<StartupObject>SyntaxAnalayzer.JackTokenizer</StartupObject>
