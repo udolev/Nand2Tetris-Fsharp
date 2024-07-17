@@ -18,15 +18,16 @@ module JackAnalyzer =
         writer.WriteLine("<tokens>")
         while tokenizer.hasMoreTokens() do
             tokenizer.advance()
-            writeTokenToXml writer tokenizer
+            writeTokenToXml writer tokenizer (Some (0))
         writer.WriteLine("</tokens>")
         printfn "Tokenization complete: %s" outputFilePath
 
     let compileFile (inputFilePath: string) = 
-        let outputFilePath = Path.ChangeExtension(inputFilePath, "xml")
-        let compilationEngine = CompilationEngine(inputFilePath, outputFilePath)
+        let xmlOutputFilePath = Path.ChangeExtension(inputFilePath, "xml")
+        let vmOutputFilePath = Path.ChangeExtension(inputFilePath, "vm")
+        let compilationEngine = CompilationEngine(inputFilePath, xmlOutputFilePath, vmOutputFilePath)
         compilationEngine.CompileClass()
-        printfn "Compilation complete: %s" outputFilePath
+        printfn "Compilation complete: %s" xmlOutputFilePath
 
     // Analyzes the specified Jack file
     let analyzeFile (inputFilePath: string) =

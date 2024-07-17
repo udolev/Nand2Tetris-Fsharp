@@ -10,7 +10,7 @@ module JackTokenizer =
     // Regular expression patterns for different token types and comments
     let COMMENT = @"(//.*)|(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)"
     let EMPTY_TEXT_PATTERN = @"\s*"
-    let KEY_WORD_PATTERN = @"^\s*(class|constructor|function|method|static|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return)\s*"
+    let KEY_WORD_PATTERN = @"^\s*\b(class|constructor|function|method|static|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return)\b\s*"
     let SYMBOL_PATTERN = @"^\s*([{}()\[\].,;+\-*/&|<>=~])\s*"
     let DIGIT_PATTERN = @"^\s*(\d+)\s*"
     let STRING_PATTERN = @"^\s*""([^""]*)""\s*"

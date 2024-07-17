@@ -11,6 +11,13 @@ module SymbolTable =
         | Arg
         | Var
 
+    let get_kind(kind:string) = 
+            match kind with
+            | "static" -> Static
+            | "field" -> Field
+            | "arg" -> Arg
+            | "var" -> Var
+
     type Symbol = {
         Name: string
         Type: string
